@@ -1,0 +1,44 @@
+# --- tips ---
+# sets a variable, can be used to redifine variables
+# set(varName argument)
+#
+# used to read from a variable
+# ${varName}
+#
+# filepath can have wildcards
+# file(GLOB varName filePath)
+#
+# outputDir needs to be an absolute path. recommend: "${CMAKE_CURRENT_BINARY_DIR}/". thats the directory of the output 
+# file(COPY varName DESTINATION outputDir)
+#
+# creates output. recommend to create a variable for output file
+# add_executable(outputFile inputMainFile) 
+# 
+# recomend to use ${CMAKE_SOURCE_DIR}, the current directory the cmake command is being run in
+# include_directories(LinkerDirectories)  
+#
+# linkerLibraries is a string of absolute paths to library files. eg "filepath1;filepath2". recommend to use variables
+# link_directories(linkerLibraries)
+#
+# binds the libraries to the main file to compile with
+# target_link_libraries(outputFile linkerLibraries)
+#
+# for mac. use "-framework frameWorkName" to add a framework.
+# links the frameworks to the main program to compile with.
+# target_link_libraries(outputFile frameWork...)
+cmake_minimum_required(VERSION 3.10)
+# project name and settings
+project(Algorithems LANGUAGES CXX)
+# compiler options
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_cxx_COMPILER "/usr/bin/clang++")
+set(CMAKE_CXX_COMPILER "/usr/bin/clang++")
+
+set(LIBRARIES_DIR "${CMAKE_SOURCE_DIR}/src/libraries")
+set(INCLUDE_DIR "${CMAKE_SOURCE_DIR}/src/includes")
+
+# main output and input
+set(OUTPUT_NAME "output.app")
+add_executable(${OUTPUT_NAME} src/main.cpp) 
+
+include_directories(${INCLUDE_DIR})
