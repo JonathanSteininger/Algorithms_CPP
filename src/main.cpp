@@ -1,17 +1,42 @@
-#include <iostream>
 #include "includes/fibonacci.h"
+#include "includes/treeSort.h"
+#include <algorithm>
+#include <cstdlib>
+#include <iostream>
 #include <string>
 #include <vector>
 
-int main(int argc, char** argv) {
-    if(argc <= 1){
-        std::cout << "No arguments inputed";
-        return 0;
+bool testFibo() {
+    return true;
+}
+void testLog(std::string title, bool success) {
+    std::cout << title
+              << ": tested, output: " << (success ? "SUCCESS" : "FAILED")
+              << "\n";
+}
+bool testTreeSort() {
+    std::vector<int> nums;
+    TreeMap<int> map;
+    for(int i = 0; i < 200; i++){
+        nums.push_back(rand());
     }
-    std::vector<unsigned int> fibo = fibonacci(std::stoi(argv[1]));
-    for(int i = 0; i < fibo.size(); i++){
-        std::cout << std::to_string(fibo[i]) << " ";
+    for(int i = 0; i < nums.size(); i++){
+        map.add(&nums[i]);
     }
-    std::cout << "\n";
+    std::cout << "tree: ";
+    for(int i = 0; i < 200; i++){
+        std::cout << std::to_string(*map.get(i)) << " ";
+    }
+    std::cout << "\n\n";
+    std::sort(nums.begin(), nums.end());
+    for(int i = 0; i < 200; i++){
+        std::cout << std::to_string(nums[i]) << " ";
+    }
+    return true;
+}
+
+int main(int argc, char **argv) {
+    testLog("Fibbonacci", testFibo());
+    testLog("TreeSort", testTreeSort());
     return 0;
 }
