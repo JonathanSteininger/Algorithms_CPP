@@ -7,7 +7,7 @@ template <typename T> class TreeChild {
   private:
     TreeChild<T> *smaller = nullptr;
     TreeChild<T> *bigger = nullptr;
-    T value;
+    T *value = new T;
     void addBigger(T *value, size_t valueHash) {
         std::cout << "bigger start\n";
         if (bigger == nullptr) {
@@ -35,32 +35,69 @@ template <typename T> class TreeChild {
     size_t valueHash;
     int weight;
     TreeChild(T *value) {
-        this->value = *value;
-        valueHash = std::hash<T>{}(this->value);
+        *this->value = *value;
+        valueHash = std::hash<T>{}(*this->value);
         weight = 1;
     }
     void add(T *value, size_t valueHash) {
         weight += 1;
-        std::cout << "Branch HashValue: " << std::to_string(this->valueHash) << "\n";
+        std::cout << "Branch HashValue: " << std::to_string(this->valueHash)
+                  << "\n";
         std::cout << "inputed Hash: " << std::to_string(valueHash) << "\n";
         if (valueHash > this->valueHash) {
             std::cout << "add bigger\n";
             this->addBigger(value, valueHash);
-        } else if (valueHash < this->valueHash){
+        } else if (valueHash < this->valueHash) {
             std::cout << "add smaller\n";
             this->addSmaller(value, valueHash);
         } else {
             std::cout << "same Value";
         }
     }
-    T get(unsigned int index) {
+    T *get(unsigned int index) {
+        std::cout << "get brach start\n";
         if (weight == 1) {
+            std::cout << "return value\n";
             return this->value;
         }
-        if (index < smaller->weight) {
-            return this->smaller->get(index);
+        std::cout << "find Next Branch\n";
+        std::cout << "index: " << std::to_string(index) << "\n";
+        std::cout << nullptr << "\n";
+        std::cout << this->smaller << "\n";
+        std::cout << this->bigger << "\n";
+        if (this->smaller == nullptr) {
+            std::cout << "smaller is null\n";
         } else {
+            std::cout << "smaller branch weight: "
+                      << std::to_string(this->smaller->weight) << "\n";
+        }
+
+        if (this->smaller == nullptr) {
+            std::cout << "steped into smaller branch if null\n";
+            if (index < this->smaller->weight) {
+                std::cout << "smaller Branch\n";
+                return this->smaller->get(index);
+            }
+            std::cout << "failed\n";
+            throw "ono\n";
+        } else {
+            std::cout << "bigger Branch\n";
+            if (this->bigger == nullptr) {
+                std::cout << "bigger doesnt exist\n";
+            }
             return this->bigger->get(index - smaller->weight);
+        }
+    }
+    void writeAdresses(){
+        std::cout << "smaller: " << this->smaller << "\n";
+        if(this->smaller != nullptr){
+            std::cout << "into smaller\n";
+            this->smaller->writeAdresses();
+        }
+        std::cout << "bigger: " << this->bigger << "\n";
+        if(this->bigger != nullptr){
+            std::cout << "into bigger\n";
+            this->bigger->writeAdresses();
         }
     }
 };
@@ -86,9 +123,19 @@ template <typename T> class TreeMap {
         std::cout << "add end ########################\n";
     }
     T get(int index) {
+        std::cout << "get start. ########################\n";
         if (treeStart == nullptr) {
+            std::cout << "no map ):\n";
             throw "TreeMap Empty\n";
         }
-        return treeStart->get(index);
+        return *(treeStart->get(index));
+        std::cout << "get end ########################\n";
+    }
+    void writeTreeAddresses(){
+        if(treeStart != nullptr){
+            treeStart->writeAdresses();
+        } else {
+            std::cout << "no tree to write addressed\n";
+        }
     }
 };

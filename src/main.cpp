@@ -25,9 +25,12 @@ bool testTreeSort() {
         map.add(&nums[i]);
         std::cout << "what\n";
     }
-    std::cout << "tree: ";
+    std::cout << "tree: \n";
+    map.writeTreeAddresses();
     for(int i = 0; i < 200; i++){
+        std::cout << "loop: " << std::to_string(i + 1) << "\n";
         std::cout << std::to_string(map.get(i)) << " ";
+        std::cout << "loopEnd: " << std::to_string(i + 1) << "\n";
     }
     std::cout << "\n\n";
     std::sort(nums.begin(), nums.end());
