@@ -5,6 +5,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <random>
 
 bool testFibo() {
     return true;
@@ -18,8 +19,10 @@ bool testTreeSort() {
     std::vector<int> nums;
     TreeMap<int> map;
     for(int i = 0; i < 200; i++){
-        nums.push_back(rand());
+        nums.push_back(i);
     }
+    auto rng = std::default_random_engine{};
+    std::shuffle(nums.begin(), nums.end(), rng);
     std::cout << "\n\n\n --------------------------- \n\n\n";
     for(int i = 0; i < nums.size(); i++){
         std::cout << "loop: " << std::to_string(i + 1) << "\n";
@@ -31,8 +34,8 @@ bool testTreeSort() {
     std::cout << "\n\n\n --------------------------- \n\n\n";
     for(int i = 0; i < 200; i++){
         std::cout << "loop: " << std::to_string(i + 1) << "\n";
-        std::cout << std::to_string(map.get(i)) << " ";
-        std::cout << "loopEnd: " << std::to_string(i + 1) << "\n";
+        std::cout << std::to_string(map.get(i)) << "\n";
+        std::cout << "loopEnd: " << std::to_string(i + 1) << "\n\n";
     }
     std::cout << "\n\n";
     std::sort(nums.begin(), nums.end());

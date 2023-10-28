@@ -56,39 +56,52 @@ template <typename T> class TreeChild {
     }
     T *get(unsigned int index) {
         std::cout << "get brach start\n";
-        if (index == 0 && this->smaller == nullptr) {
-            std::cout << "return value\n";
+        std::cout << "value: " << std::to_string(valueHash) << "\n";
+        std::cout << "index: " << std::to_string(index) << "\n";
+        if (this->smaller != nullptr){
+            if(index == this->smaller->weight){
+                std::cout << "return mid value\n";
+                return this->value;
+            }
+        }else if (index == 0){
+            std::cout << "return end value\n";
             return this->value;
         }
-        std::cout << "find Next Branch\n";
-        std::cout << "index: " << std::to_string(index) << "\n";
-        std::cout << nullptr << "\n";
-        std::cout << this->smaller << "\n";
-        std::cout << this->bigger << "\n";
-        if (this->smaller == nullptr) {
-            std::cout << "smaller is null\n";
-        } else {
-            std::cout << "smaller branch weight: "
-                      << std::to_string(this->smaller->weight) << "\n";
+        if(false){
+            std::cout << "find Next Branch\n";
+            std::cout << "index: " << std::to_string(index) << "\n";
+            std::cout << nullptr << "\n";
+            std::cout << this->smaller << "\n";
+            std::cout << this->bigger << "\n";
         }
+
+
         if(this->smaller == nullptr){
+            std::cout << "smaller is null\n";
             if(this->bigger == nullptr){
+                std::cout << "this should not work!!!";
                 throw "tree get error. both branches null";
             }
             return this->bigger->get(index-1);
+        }else {
+            std::cout << "smaller branch weight: "
+                      << std::to_string(this->smaller->weight) << "\n";
         }
 
         if (index <= this->smaller->weight) {
             std::cout << "smaller Branch\n";
-            int outindex = index - (this->bigger == nullptr ? 1 : this->bigger->weight);
-            return this->smaller->get(outindex);
+            return this->smaller->get(index);
         } else { // else index is in bigger branc
             std::cout << "bigger Branch\n";
-            int outindex = index - (this->smaller == nullptr ? 1 : this->smaller->weight);
+            if(this->bigger == nullptr){
+                std::cout << "bigger null\n";
+            }
+            int outindex = index - (this->smaller == nullptr ? 1 : (this->smaller->weight + 1));
             return this->bigger->get(outindex);
         }
     }
     void writeAdresses(){
+        std::cout << "value: " << std::to_string(*this->value) << "\n";
         std::cout << "smaller: " << this->smaller << "\n";
         std::cout << "bigger: " << this->bigger << "\n";
         if(this->smaller != nullptr){
