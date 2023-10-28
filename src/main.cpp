@@ -20,13 +20,15 @@ bool testTreeSort() {
     for(int i = 0; i < 200; i++){
         nums.push_back(rand());
     }
+    std::cout << "\n\n\n --------------------------- \n\n\n";
     for(int i = 0; i < nums.size(); i++){
         std::cout << "loop: " << std::to_string(i + 1) << "\n";
         map.add(&nums[i]);
-        std::cout << "what\n";
     }
+    std::cout << "\n\n\n --------------------------- \n\n\n";
     std::cout << "tree: \n";
     map.writeTreeAddresses();
+    std::cout << "\n\n\n --------------------------- \n\n\n";
     for(int i = 0; i < 200; i++){
         std::cout << "loop: " << std::to_string(i + 1) << "\n";
         std::cout << std::to_string(map.get(i)) << " ";

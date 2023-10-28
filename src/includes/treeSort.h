@@ -56,7 +56,7 @@ template <typename T> class TreeChild {
     }
     T *get(unsigned int index) {
         std::cout << "get brach start\n";
-        if (weight == 1) {
+        if (index == 0 && this->smaller == nullptr) {
             std::cout << "return value\n";
             return this->value;
         }
@@ -71,34 +71,35 @@ template <typename T> class TreeChild {
             std::cout << "smaller branch weight: "
                       << std::to_string(this->smaller->weight) << "\n";
         }
+        if(this->smaller == nullptr){
+            if(this->bigger == nullptr){
+                throw "tree get error. both branches null";
+            }
+            return this->bigger->get(index-1);
+        }
 
-        if (this->smaller == nullptr) {
-            std::cout << "steped into smaller branch if null\n";
-            if (index < this->smaller->weight) {
-                std::cout << "smaller Branch\n";
-                return this->smaller->get(index);
-            }
-            std::cout << "failed\n";
-            throw "ono\n";
-        } else {
+        if (index <= this->smaller->weight) {
+            std::cout << "smaller Branch\n";
+            int outindex = index - (this->bigger == nullptr ? 1 : this->bigger->weight);
+            return this->smaller->get(outindex);
+        } else { // else index is in bigger branc
             std::cout << "bigger Branch\n";
-            if (this->bigger == nullptr) {
-                std::cout << "bigger doesnt exist\n";
-            }
-            return this->bigger->get(index - smaller->weight);
+            int outindex = index - (this->smaller == nullptr ? 1 : this->smaller->weight);
+            return this->bigger->get(outindex);
         }
     }
     void writeAdresses(){
         std::cout << "smaller: " << this->smaller << "\n";
+        std::cout << "bigger: " << this->bigger << "\n";
         if(this->smaller != nullptr){
             std::cout << "into smaller\n";
             this->smaller->writeAdresses();
         }
-        std::cout << "bigger: " << this->bigger << "\n";
         if(this->bigger != nullptr){
             std::cout << "into bigger\n";
             this->bigger->writeAdresses();
         }
+        std::cout << "exeting branch\n";
     }
 };
 
