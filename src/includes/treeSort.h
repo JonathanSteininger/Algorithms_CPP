@@ -1,7 +1,37 @@
 #include <exception>
-#include <functional>
 #include <iostream>
 #include <string>
+
+namespace treeSortLog{
+static void writeSourceLocation(const char *fileName, int lineNumber){
+#ifdef ENABLE_LOGGING_TREE
+    std::cout << "file: " << fileName << " @:" << std::to_string(lineNumber) << " | ";
+#endif
+}
+
+template <typename T>
+inline void LOG(T text){
+#ifdef ENABLE_LOGGING_TREE
+    writeSourceLocation(__FILE__, __LINE__);
+    std::cout << text << "\n";
+#endif
+}
+template <typename T> 
+inline void LOG_VARS(std::string text, T variable){
+#ifdef ENABLE_LOGGING_TREE
+    writeSourceLocation(__FILE__, __LINE__);
+    std::cout << text << std::to_string(variable) << "\n";
+#endif
+}
+template <typename T> 
+inline void LOG_VARS_SIMPLE(std::string text, T variable){
+#ifdef ENABLE_LOGGING_TREE
+    writeSourceLocation(__FILE__, __LINE__);
+    std::cout << text << variable << "\n";
+#endif
+}
+}
+
 
 template <typename T> class TreeChild {
   private:
@@ -9,25 +39,25 @@ template <typename T> class TreeChild {
     TreeChild<T> *bigger = nullptr;
     T *value = new T;
     void addBigger(T *value, size_t valueHash) {
-        std::cout << "bigger start\n";
+        treeSortLog::LOG("bigger start");
         if (bigger == nullptr) {
-            std::cout << "added bigger tree\n";
+            treeSortLog::LOG("added bigger tree");
             bigger = new TreeChild<T>(value);
-            std::cout << "bigger end\n";
+            treeSortLog::LOG( "bigger end");
             return;
         }
-        std::cout << "bigger branch\n";
+        treeSortLog::LOG( "bigger branch");
         bigger->add(value, valueHash);
     }
     void addSmaller(T *value, size_t valueHash) {
-        std::cout << "smaller start\n";
+        treeSortLog::LOG("smaller start");
         if (smaller == nullptr) {
-            std::cout << "added smaller tree\n";
+            treeSortLog::LOG("added smaller tree");
             smaller = new TreeChild<T>(value);
-            std::cout << "smaller end\n";
+            treeSortLog::LOG("smaller end");
             return;
         }
-        std::cout << "smaller branch\n";
+        treeSortLog::LOG("smaller branch");
         smaller->add(value, valueHash);
     }
 
@@ -41,78 +71,76 @@ template <typename T> class TreeChild {
     }
     void add(T *value, size_t valueHash) {
         weight += 1;
-        std::cout << "Branch HashValue: " << std::to_string(this->valueHash)
-                  << "\n";
-        std::cout << "inputed Hash: " << std::to_string(valueHash) << "\n";
+        treeSortLog::LOG_VARS("Branch HashValue: ", this->valueHash);
+        treeSortLog::LOG_VARS("inputed Hash: ",valueHash);
         if (valueHash > this->valueHash) {
-            std::cout << "add bigger\n";
+            treeSortLog::LOG("add bigger");
             this->addBigger(value, valueHash);
         } else if (valueHash < this->valueHash) {
-            std::cout << "add smaller\n";
+            treeSortLog::LOG("add smaller");
             this->addSmaller(value, valueHash);
         } else {
-            std::cout << "same Value";
+            treeSortLog::LOG("same Value");
         }
     }
     T *get(unsigned int index) {
-        std::cout << "get brach start\n";
-        std::cout << "value: " << std::to_string(valueHash) << "\n";
-        std::cout << "index: " << std::to_string(index) << "\n";
+        treeSortLog::LOG("get brach start");
+        treeSortLog::LOG_VARS("value: ",valueHash);
+        treeSortLog::LOG_VARS("index: ",index);
         if (this->smaller != nullptr){
             if(index == this->smaller->weight){
-                std::cout << "return mid value\n";
+                treeSortLog::LOG("return mid value");
                 return this->value;
             }
         }else if (index == 0){
-            std::cout << "return end value\n";
+            treeSortLog::LOG("return end value");
             return this->value;
         }
         if(false){
-            std::cout << "find Next Branch\n";
-            std::cout << "index: " << std::to_string(index) << "\n";
-            std::cout << nullptr << "\n";
-            std::cout << this->smaller << "\n";
-            std::cout << this->bigger << "\n";
+            treeSortLog::LOG("find Next Branch");
+            treeSortLog::LOG_VARS("index: ",index);
+            treeSortLog::LOG(nullptr);
+            treeSortLog::LOG(this->smaller); 
+            treeSortLog::LOG(this->bigger); 
         }
 
 
         if(this->smaller == nullptr){
-            std::cout << "smaller is null\n";
+            treeSortLog::LOG("smaller is null");
             if(this->bigger == nullptr){
-                std::cout << "this should not work!!!";
+                treeSortLog::LOG("this should not work!!!");
                 throw "tree get error. both branches null";
             }
             return this->bigger->get(index-1);
         }else {
-            std::cout << "smaller branch weight: "
-                      << std::to_string(this->smaller->weight) << "\n";
+            treeSortLog::LOG_VARS("smaller branch weight: ",this->smaller->weight);
         }
 
         if (index <= this->smaller->weight) {
-            std::cout << "smaller Branch\n";
+            treeSortLog::LOG("smaller Branch");
             return this->smaller->get(index);
         } else { // else index is in bigger branc
-            std::cout << "bigger Branch\n";
+            treeSortLog::LOG("bigger Branch");
             if(this->bigger == nullptr){
-                std::cout << "bigger null\n";
+                treeSortLog::LOG("bigger null");
             }
             int outindex = index - (this->smaller == nullptr ? 1 : (this->smaller->weight + 1));
             return this->bigger->get(outindex);
         }
     }
     void writeAdresses(){
-        std::cout << "value: " << std::to_string(*this->value) << "\n";
-        std::cout << "smaller: " << this->smaller << "\n";
-        std::cout << "bigger: " << this->bigger << "\n";
+        treeSortLog::LOG_VARS_SIMPLE("value: ", this->value);
+        treeSortLog::LOG_VARS_SIMPLE("smaller: ", this->smaller);
+        treeSortLog::LOG_VARS_SIMPLE("bigger: ", this->bigger );
         if(this->smaller != nullptr){
-            std::cout << "into smaller\n";
+            treeSortLog::LOG("into smaller");
             this->smaller->writeAdresses();
         }
         if(this->bigger != nullptr){
-            std::cout << "into bigger\n";
+            treeSortLog::LOG("into bigger");
             this->bigger->writeAdresses();
         }
-        std::cout << "exeting branch\n";
+        treeSortLog::LOG("exeting branch");
     }
 };
 
@@ -125,31 +153,31 @@ template <typename T> class TreeMap {
     TreeMap() {}
     void add(T *value) {
         size_t valueHash = std::hash<T>{}(*value);
-        std::cout << "add start. ########################\n";
-        std::cout << "total added: " << std::to_string(++size) << "\n";
-        std::cout << "value added: " << std::to_string(*value) << "\n";
+        treeSortLog::LOG("add start. ########################");
+        treeSortLog::LOG_VARS("total added: ",++size);
+        treeSortLog::LOG_VARS("value added: ",*value);
         if (treeStart == nullptr) {
-            std::cout << "start Tree\n";
+            treeSortLog::LOG("start Tree");
             treeStart = new TreeChild<T>(value);
             return;
         }
         treeStart->add(value, valueHash);
-        std::cout << "add end ########################\n";
+        treeSortLog::LOG("add end ########################");
     }
     T get(int index) {
-        std::cout << "get start. ########################\n";
+        treeSortLog::LOG("get start. ########################");
         if (treeStart == nullptr) {
-            std::cout << "no map ):\n";
+            treeSortLog::LOG("no map ):");
             throw "TreeMap Empty\n";
         }
         return *(treeStart->get(index));
-        std::cout << "get end ########################\n";
+        treeSortLog::LOG("get end ########################");
     }
     void writeTreeAddresses(){
         if(treeStart != nullptr){
             treeStart->writeAdresses();
         } else {
-            std::cout << "no tree to write addressed\n";
+            treeSortLog::LOG("no tree to write addressed");
         }
     }
 };
