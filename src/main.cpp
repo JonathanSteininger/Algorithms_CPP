@@ -1,5 +1,5 @@
 #define ENABLE_LOGGING
-//#define ENABLE_LOGGING_TREE
+#define ENABLE_LOGGING_TREE
 #define PRINT_TESTS
 #include "includes/fibonacci.h"
 #include "includes/treeSort.h"
@@ -39,6 +39,8 @@ bool testTreeSort() {
         treeSortLog::LOG(std::to_string(map.get(i)));
         treeSortLog::LOG_VARS("loopEnd: ",i + 1);
     }
+    treeSortLog::LOG("\n\n\n --------------balance------------- \n\n");
+    map.balanceTree();
     std::sort(nums.begin(), nums.end());
     for(int i = 0; i < 200; i++){
         if(map.get(i) != nums[i]){
