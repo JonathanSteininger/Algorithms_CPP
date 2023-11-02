@@ -1,32 +1,60 @@
+#include <cmath>
 #include <exception>
 #include <iostream>
 #include <string>
+#include <vector>
 
 namespace treeSortLog{
-static void writeSourceLocation(const char *fileName, int lineNumber){
+static void writeSourceLocation(const char *fileName, int lineNumber, std::string *_location){
 #ifdef ENABLE_LOGGING_TREE
-    std::cout << "file: " << fileName << " @:" << std::to_string(lineNumber) << " | ";
+    static std::vector<std::string> LogList = std::vector<std::string>();
+    if(LogList.empty()){
+        LogList.push_back("main");
+    }
+    if(_location != nullptr){
+        if(*_location == "___Remove___"){
+            LogList.pop_back();
+            return;
+        }
+        LogList.push_back(*_location);
+        return;
+    }
+    for(std::string section : LogList){
+        std::cout << section << ">";
+    }
+    std::cout << " | file: " << fileName << " @:" << std::to_string(lineNumber) << " | ";
+#endif
+}
+inline void endLogSection(){
+#ifdef ENABLE_LOGGING_TREE
+    std::string removeString = "___Remove___";
+    writeSourceLocation("", 0, &removeString);
 #endif
 }
 
+inline void setLogLocation(std::string location){
+#ifdef ENABLE_LOGGING_TREE
+    writeSourceLocation("", 0, &location);
+#endif
+}
 template <typename T>
 inline void LOG(T text){
 #ifdef ENABLE_LOGGING_TREE
-    writeSourceLocation(__FILE__, __LINE__);
+    writeSourceLocation(__FILE__, __LINE__, nullptr);
     std::cout << text << "\n";
 #endif
 }
 template <typename T> 
 inline void LOG_VARS(std::string text, T variable){
 #ifdef ENABLE_LOGGING_TREE
-    writeSourceLocation(__FILE__, __LINE__);
+    writeSourceLocation(__FILE__, __LINE__, nullptr);
     std::cout << text << std::to_string(variable) << "\n";
 #endif
 }
 template <typename T> 
 inline void LOG_VARS_SIMPLE(std::string text, T variable){
 #ifdef ENABLE_LOGGING_TREE
-    writeSourceLocation(__FILE__, __LINE__);
+    writeSourceLocation(__FILE__, __LINE__, nullptr);
     std::cout << text << variable << "\n";
 #endif
 }
@@ -142,6 +170,36 @@ template <typename T> class TreeChild {
         }
         treeSortLog::LOG("exeting branch");
     }
+    T* getValue(){
+        return this->value;
+    }
+    TreeChild<T> *getSmaller(){
+        return this->smaller;
+    }
+    TreeChild<T> *getBigger(){
+        return this->bigger;
+    }
+    void SetValue(T *pointer){
+        this->value = pointer;
+        valueHash = std::hash<T>{}(*this->value);
+    }
+    void SetSmaller(TreeChild<T> *pointer){
+        this->smaller = pointer;
+    }
+    void SetBigger(TreeChild<T> *pointer){
+        this->smaller = pointer;
+    }
+    void deleteTree(){
+        if(this->smaller != nullptr){
+            this->smaller->deleteTree();
+            delete this->smaller;
+        }
+        if(this->bigger != nullptr){
+            this->bigger->deleteTree();
+            delete this->bigger;
+        }
+        
+    }
 };
 
 template <typename T> class TreeMap {
@@ -152,32 +210,105 @@ template <typename T> class TreeMap {
     int size = 0;
     TreeMap() {}
     void add(T *value) {
+        treeSortLog::setLogLocation("addTree");
         size_t valueHash = std::hash<T>{}(*value);
-        treeSortLog::LOG("add start. ########################");
         treeSortLog::LOG_VARS("total added: ",++size);
         treeSortLog::LOG_VARS("value added: ",*value);
         if (treeStart == nullptr) {
             treeSortLog::LOG("start Tree");
             treeStart = new TreeChild<T>(value);
+            treeSortLog::endLogSection();
             return;
         }
         treeStart->add(value, valueHash);
-        treeSortLog::LOG("add end ########################");
+        treeSortLog::endLogSection();
     }
     T get(int index) {
-        treeSortLog::LOG("get start. ########################");
+        treeSortLog::setLogLocation("getTreeItem");
         if (treeStart == nullptr) {
             treeSortLog::LOG("no map ):");
             throw "TreeMap Empty\n";
         }
+        treeSortLog::endLogSection();
         return *(treeStart->get(index));
-        treeSortLog::LOG("get end ########################");
     }
     void writeTreeAddresses(){
+        treeSortLog::setLogLocation("logTreeAddress");
         if(treeStart != nullptr){
             treeStart->writeAdresses();
         } else {
             treeSortLog::LOG("no tree to write addressed");
         }
+        treeSortLog::endLogSection();
+    }
+    void balanceTree(){
+        treeSortLog::setLogLocation("treeBalance");
+        if(treeStart == nullptr){
+            treeSortLog::LOG("no tree :(");
+            throw "missing tree start";
+        }
+
+        int amount = treeStart->weight;
+        TreeChild<T> *newTreeStart = nullptr;
+        int jumps = 1;
+        float pastLevel = -1;
+        float lastLevel = std::floor(std::log2(amount)) + 1;
+        bool movedIndexes[amount];
+        for(int i = 0; i < amount; i++){
+            movedIndexes[i] = false;
+        }
+        for(int i = 1; i <= amount; i++){
+            float level = std::floor(std::log2(i)) + 1;
+            if(pastLevel != level){
+                pastLevel = level;
+                jumps = 1;
+            }else{
+                jumps += 2;
+            }
+            treeSortLog::LOG_VARS("\nloop: ", i);
+            treeSortLog::LOG_VARS("level: ", level);
+            treeSortLog::LOG_VARS("jumps: ", jumps);
+            treeSortLog::LOG_VARS("amount: ", amount);
+            int position = -1;
+            if(lastLevel <= level){
+                treeSortLog::setLogLocation("ramaining");
+                int remaining = 0;
+                for(int ii = 0; ii < amount; ii++){
+                    if(!movedIndexes[ii]){
+                        remaining++;
+                        if(position == -1){
+                            position = ii;
+                        }
+                    }
+                }
+                treeSortLog::LOG_VARS("remaining:", amount);
+                treeSortLog::endLogSection();
+            }else{
+                position = jumps * int(std::floor(amount / (std::pow(2, level))));
+            }
+            treeSortLog::LOG_VARS("pos:", position);
+            treeSortLog::setLogLocation("getValue");
+            T valueOut = *(treeStart->get(position));
+            treeSortLog::endLogSection();
+            if(movedIndexes[position]){
+                treeSortLog::LOG("DUPLICATE POSITION");
+            }
+            movedIndexes[position] = true;
+            treeSortLog::LOG("AFTER");
+            if(i == 1){
+                treeSortLog::setLogLocation("newTreeStart");
+                newTreeStart = new TreeChild<T>(&valueOut);
+                treeSortLog::endLogSection();
+                continue;
+            }
+            treeSortLog::LOG_VARS("Position abc: ", position);
+            size_t hashOut = std::hash<T>{}(valueOut);
+            treeSortLog::setLogLocation("addValue");
+            newTreeStart->add(&valueOut, hashOut); 
+            treeSortLog::endLogSection();
+        }
+        treeStart->deleteTree();
+        treeStart = newTreeStart;
+        treeSortLog::endLogSection();
     }
 };
