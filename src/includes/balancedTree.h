@@ -2,53 +2,51 @@
 class node {
   private:
     bool addLeft(int num) {
+        LOG_ADD_SECTION("addLeft");
         if (left == nullptr) {
             LOG("Create new LEFT node ----------");
             left = new node(num);
             if (right == nullptr) {
-                LOG("Right is also null. adjust branch height");
-                LOG("Returning true so parent Node adjusts height");
-                height = 1;
+                LOG("Right is also null. returning true to adjust height");
+                LOG_EXIT_SECTION();
                 return true;
             }
         } else {
             LOG("Enter Left to add -----------");
-            bool flag = false;
-            if (left->add(num)) {
-                LOG("need to UpdateHeight");
-                flag = this->updateHeight();
-            }
-            LOG("Rebalance left");
-            left = left->rebalance();
-            return flag;
+            bool temp = left->add(num);
+            LOG_EXIT_SECTION();
+            return temp;
         }
+        LOG_EXIT_SECTION();
         return false;
     }
     bool addRight(int num) {
+        LOG_ADD_SECTION("addRight");
         if (right == nullptr) {
             LOG("Create new NODE ----------");
             right = new node(num);
             if (left == nullptr) {
-                LOG("Left is also null. adjust branch height");
-                height = 1;
-                LOG("Returning true so parent Node adjusts height");
+                LOG("Left is also null. returning true to adjust height");
+                LOG_EXIT_SECTION();
                 return true;
             }
         } else {
             LOG("Enter Right to add -----------");
-            bool flag = false;
-            if (right->add(num)) {
-                LOG("need to UpdateHeight");
-                flag = this->updateHeight();
-            }
-            LOG("Rebalance right");
-            right = right->rebalance();
-            return flag;
+            bool temp = right->add(num);
+            LOG_EXIT_SECTION();
+            return temp;
         }
+        LOG_EXIT_SECTION();
         return false;
     }
     bool updateHeight() {
         LOG_ADD_SECTION("updateHeght");
+        if (left == nullptr) {
+            LOG("LEFT NULL");
+        }
+        if (right == nullptr) {
+            LOG("RIGHT NULL");
+        }
         int leftHeight = left == nullptr ? 0 : left->height;
         LOG_VARS("leftHeight: ", leftHeight);
         int rightHeight = right == nullptr ? 0 : right->height;
@@ -60,33 +58,6 @@ class node {
         LOG_VARS("heightAfter: ", height);
         LOG_EXIT_SECTION();
         return !flag;
-    }
-    node *rebalance() {
-        LOG_ADD_SECTION("rebalance");
-        LOG("rebalance NODE");
-        int thisBalance = getBalance();
-        LOG_VARS("thisBalance", thisBalance); 
-        int leftBalance = left == nullptr ? 0 : left->getBalance();
-        LOG_VARS("leftBalance", leftBalance);
-        int rightBalance = right == nullptr ? 0 : right->getBalance();
-        LOG_VARS("rightBalance", rightBalance);
-        node *returnNode = this;
-        if (thisBalance < -1) {
-            if (leftBalance == 1) {
-                returnNode = this->rotateLeftRight();
-            } else if (leftBalance == -1) {
-                returnNode = this->rotateRight();
-            }
-        } else if (thisBalance > 1) {
-            if (rightBalance == -1) {
-                returnNode = this->rotateRightLeft();
-            } else if (rightBalance == 1) {
-                returnNode = this->rotateLeft();
-            }
-        }
-        LOG_VARS_SIMPLE("NODE ADDRESS: ", returnNode);
-        LOG_EXIT_SECTION();
-        return returnNode ;
     }
     node *rotateLeft() {
         LOG_ADD_SECTION("rotateLeft");
@@ -126,32 +97,95 @@ class node {
     }
 
   public:
-    int value, height = 0;
+    int value, height = 1;
     node *left = nullptr;
     node *right = nullptr;
-    node(int num) { value = num; }
+    node(int num) {
+        LOG_ADD_SECTION("nodeCreation");
+        LOG("created Node");
+        value = num; 
+        LOG_EXIT_SECTION();
+    }
     int get(int index) { return 0; }
     int size() { return height + 1; }
     int getBalance() {
         LOG_ADD_SECTION("getBalance");
+        if (left == nullptr) {
+            LOG("LEFT NULL");
+        }
+        if (right == nullptr) {
+            LOG("RIGHT NULL");
+        }
         int leftHeight = left == nullptr ? 0 : left->height;
         LOG_VARS("leftHeight: ", leftHeight);
         int rightHeight = right == nullptr ? 0 : right->height;
         LOG_VARS("rightHeight: ", rightHeight);
         LOG_EXIT_SECTION();
-        return leftHeight - rightHeight;
+        return rightHeight - leftHeight;
+    }
+    node *rebalance() {
+        LOG_ADD_SECTION("rebalance");
+        LOG("rebalance NODE");
+        int thisBalance = getBalance();
+        LOG_VARS("thisBalance", thisBalance);
+        int leftBalance = left == nullptr ? 0 : left->getBalance();
+        LOG_VARS("leftBalance", leftBalance);
+        int rightBalance = right == nullptr ? 0 : right->getBalance();
+        LOG_VARS("rightBalance", rightBalance);
+        node *returnNode = this;
+        if (thisBalance < -1) {
+            if (leftBalance == 1) {
+                returnNode = this->rotateLeftRight();
+            } else if (leftBalance == -1) {
+                returnNode = this->rotateRight();
+            }
+        } else if (thisBalance > 1) {
+            if (rightBalance == -1) {
+                returnNode = this->rotateRightLeft();
+            } else if (rightBalance == 1) {
+                returnNode = this->rotateLeft();
+            }
+        }
+        LOG_VARS_SIMPLE("NODE ADDRESS: ", returnNode);
+        LOG_EXIT_SECTION();
+        return returnNode;
     }
     bool add(int num) {
+        LOG_ADD_SECTION("addNode");
         if (num == value) {
             LOG("inputed value is the same as node");
+            LOG_EXIT_SECTION();
             return false;
         } else if (num < value) {
             LOG("Add to left");
-            return this->addLeft(num);
+            bool flag = false;
+            if (this->addLeft(num)) {
+                LOG("need to UpdateHeight");
+                flag = this->updateHeight();
+            }
+            LOG("Rebalance left");
+            left = left->rebalance();
+            if(flag){
+                LOG("Need to tell parent to update height");
+            }
+            LOG_EXIT_SECTION();
+            return flag;
         } else if (num > value) {
             LOG("Add to Right");
-            return this->addRight(num);
+            bool flag = false;
+            if (this->addRight(num)) {
+                LOG("need to UpdateHeight");
+                flag = this->updateHeight();
+            }
+            LOG("Rebalance Right");
+            right = right->rebalance();
+            if(flag){
+                LOG("Need to tell parent to update height");
+            }
+            LOG_EXIT_SECTION();
+            return flag;
         }
+        LOG_EXIT_SECTION();
         return false;
     }
 };
@@ -172,7 +206,12 @@ class TreeStart {
         }
         LOG("Adding to root");
         root->add(num);
+        root = root->rebalance();
         LOG_EXIT_SECTION();
+    }
+    int get(int index){
+    }
+    int contains(int num){
     }
     int size() {
         LOG_ADD_SECTION("TreeSize");

@@ -62,7 +62,12 @@ bool testBalancedTree(){
         LOG_VARS("number: ", nums[i]);
         head.add(nums[i]);
     }
-    std::cout << "Total Nums: " << std::to_string(head.size()) << "\n";
+    LOG_VARS("Total Nums: ", head.size());
+    std::sort(nums.begin(), nums.end());
+    bool flag = true;
+    for(int i = 0; i < nums.size(); i++){
+
+    }
     return true;
 
 }
