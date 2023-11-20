@@ -1,4 +1,5 @@
-#pragma once
+#ifndef LOGGING_JONO
+#define LOGGING_JONO
 #include <iostream>
 
 static void writeSourceLocation(const char *fileName, int lineNumber, std::string *_location){
@@ -22,7 +23,7 @@ static void writeSourceLocation(const char *fileName, int lineNumber, std::strin
     if(!loggingEnabled){
         return;
     }
-    int desiredStart = 50;
+    int desiredStart = 70;
     int totalTraveled = 0;
     for(std::string section : LogList){
         totalTraveled += section.length() + 1;
@@ -74,4 +75,4 @@ inline void LOG_VARS_SIMPLE(std::string text, T variable){
     std::cout << text << variable << "\n";
 #endif
 }
-
+#endif
