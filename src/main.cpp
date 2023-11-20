@@ -1,8 +1,8 @@
 #define ENABLE_LOGGING
-#define ENABLE_LOGGING_TREE
 #define PRINT_TESTS
 #include "includes/fibonacci.h"
 #include "includes/treeSort.h"
+#include "includes/balancedTree.h"
 #include "includes/logging.h"
 #include <algorithm>
 #include <cstdlib>
@@ -49,9 +49,27 @@ bool testTreeSort() {
     }
     return true;
 }
+bool testBalancedTree(){
+    std::vector<int> nums;
+    TreeStart head;
+    for(int i = 0; i < 200; i++){
+        nums.push_back(i);
+    }
+    auto rng = std::default_random_engine{};
+    std::shuffle(nums.begin(), nums.end(), rng);
+    for(int i = 0; i < nums.size(); i++){
+        LOG_VARS("i: ", i);
+        LOG_VARS("number: ", nums[i]);
+        head.add(nums[i]);
+    }
+    std::cout << "Total Nums: " << std::to_string(head.size()) << "\n";
+    return true;
+
+}
 
 int main(int argc, char **argv) {
     testLog("Fibbonacci", testFibo());
-    testLog("TreeSort", testTreeSort());
+    //testLog("TreeSort", testTreeSort());
+    testLog("balancedTree", testBalancedTree());
     return 0;
 }
