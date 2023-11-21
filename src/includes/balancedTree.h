@@ -65,7 +65,9 @@ class node {
         right = r->left;
         r->left = this;
         this->updateHeight();
+        updateWeight();
         r->updateHeight();
+        r->updateWeight();
         LOG_EXIT_SECTION();
         return r;
     }
@@ -75,13 +77,16 @@ class node {
         left = l->right;
         l->right = this;
         this->updateHeight();
+        updateWeight();
         l->updateHeight();
+        l->updateWeight();
         LOG_EXIT_SECTION();
         return l;
     }
     node *rotateLeftRight() {
         LOG_ADD_SECTION("rotateLeftRight");
         left = left->rotateLeft();
+        updateWeight();
         node *temp = this->rotateRight();
         temp->updateHeight();
         LOG_EXIT_SECTION();
@@ -90,6 +95,7 @@ class node {
     node *rotateRightLeft() {
         LOG_ADD_SECTION("rotateRightLeft");
         right = right->rotateRight();
+        updateWeight();
         node *temp = this->rotateLeft();
         temp->updateHeight();
         LOG_EXIT_SECTION();
@@ -97,17 +103,73 @@ class node {
     }
 
   public:
-    int value, height = 1;
+    int value, height = 1, weight = 1;
     node *left = nullptr;
     node *right = nullptr;
     node(int num) {
         LOG_ADD_SECTION("nodeCreation");
         LOG("created Node");
-        value = num; 
+        value = num;
         LOG_EXIT_SECTION();
     }
-    int get(int index) { return 0; }
-    int size() { return height + 1; }
+    int get(int index) {
+        LOG_ADD_SECTION("getNode");
+        if (left != nullptr) {
+            if (index == left->weight) {
+                LOG("node == index, returning value");
+                LOG_EXIT_SECTION();
+                return value;
+            }
+
+        } else if (index == 0) {
+            LOG("no left node and index = 0, returning value");
+            LOG_EXIT_SECTION();
+            return value;
+        }
+        int outValue = getFromNextNode(index);
+        LOG_EXIT_SECTION();
+        return outValue;
+    }
+    int getFromNextNode(int index) {
+        LOG_ADD_SECTION("findNextNode");
+        int numOut;
+        if (left == nullptr) {
+            LOG("left is null");
+            if (right == nullptr) {
+                LOG("right also null. ERROR");
+                LOG_VARS("thisWeight: ", weight);
+                throw "tree get error. both branches null";
+            }
+            numOut = right->get(index - 1);
+        } else if (index <= left->weight) {
+            LOG("smaller Branch");
+            numOut = left->get(index);
+        } else { // else index is in bigger branc
+            LOG("bigger Branch");
+            int outindex = index - (left == nullptr ? 1 : (left->weight + 1));
+            numOut = right->get(outindex);
+        }
+        LOG_EXIT_SECTION();
+        return numOut;
+    }
+    int size() { return weight; }
+    void updateWeight() {
+        LOG_ADD_SECTION("updateWeight");
+        if (left == nullptr) {
+            LOG("LEFT NULL");
+        }
+        if (right == nullptr) {
+            LOG("RIGHT NULL");
+        }
+        int leftWeight = left == nullptr ? 0 : left->weight;
+        LOG_VARS("leftWeight: ", leftWeight);
+        int rightWeight = right == nullptr ? 0 : right->weight;
+        LOG_VARS("rightWeight: ", rightWeight);
+        LOG_VARS("beforeWeight: ", weight);
+        weight = leftWeight + rightWeight + 1;
+        LOG_VARS("afterWeight: ", weight);
+        LOG_EXIT_SECTION();
+    }
     int getBalance() {
         LOG_ADD_SECTION("getBalance");
         if (left == nullptr) {
@@ -152,41 +214,38 @@ class node {
     }
     bool add(int num) {
         LOG_ADD_SECTION("addNode");
+        bool flag = false;
         if (num == value) {
             LOG("inputed value is the same as node");
             LOG_EXIT_SECTION();
             return false;
         } else if (num < value) {
             LOG("Add to left");
-            bool flag = false;
             if (this->addLeft(num)) {
                 LOG("need to UpdateHeight");
                 flag = this->updateHeight();
             }
             LOG("Rebalance left");
             left = left->rebalance();
-            if(flag){
+            if (flag) {
                 LOG("Need to tell parent to update height");
             }
-            LOG_EXIT_SECTION();
-            return flag;
         } else if (num > value) {
             LOG("Add to Right");
-            bool flag = false;
             if (this->addRight(num)) {
                 LOG("need to UpdateHeight");
                 flag = this->updateHeight();
             }
             LOG("Rebalance Right");
             right = right->rebalance();
-            if(flag){
+            if (flag) {
                 LOG("Need to tell parent to update height");
             }
-            LOG_EXIT_SECTION();
-            return flag;
         }
+        LOG("Need to update weight");
+        updateWeight();
         LOG_EXIT_SECTION();
-        return false;
+        return flag;
     }
 };
 
@@ -209,10 +268,18 @@ class TreeStart {
         root = root->rebalance();
         LOG_EXIT_SECTION();
     }
-    int get(int index){
+    int get(int index) {
+        LOG_ADD_SECTION("TreeGet");
+        if (root == nullptr) {
+            LOG("Nothing in tree");
+            LOG_EXIT_SECTION();
+            throw "Nothing in tree";
+        }
+        int valueOut = root->get(index);
+        LOG_EXIT_SECTION();
+        return valueOut;
     }
-    int contains(int num){
-    }
+    bool contains(int num) { return true; }
     int size() {
         LOG_ADD_SECTION("TreeSize");
         return root == nullptr ? 0 : root->size();
