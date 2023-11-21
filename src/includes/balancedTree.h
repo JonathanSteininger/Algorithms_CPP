@@ -1,4 +1,6 @@
 #include "logging.h"
+#include <cmath>
+#include <sstream>
 class node {
   private:
     bool addLeft(int num) {
@@ -64,7 +66,7 @@ class node {
         node *r = right;
         right = r->left;
         r->left = this;
-        this->updateHeight();
+        updateHeight();
         updateWeight();
         r->updateHeight();
         r->updateWeight();
@@ -76,7 +78,7 @@ class node {
         node *l = left;
         left = l->right;
         l->right = this;
-        this->updateHeight();
+        updateHeight();
         updateWeight();
         l->updateHeight();
         l->updateWeight();
@@ -87,7 +89,7 @@ class node {
         LOG_ADD_SECTION("rotateLeftRight");
         left = left->rotateLeft();
         updateWeight();
-        node *temp = this->rotateRight();
+        node *temp = rotateRight();
         temp->updateHeight();
         LOG_EXIT_SECTION();
         return temp;
@@ -96,12 +98,27 @@ class node {
         LOG_ADD_SECTION("rotateRightLeft");
         right = right->rotateRight();
         updateWeight();
-        node *temp = this->rotateLeft();
+        node *temp = rotateLeft();
         temp->updateHeight();
         LOG_EXIT_SECTION();
         return temp;
     }
 
+    void getLevelValuesFake(std::stringstream *stream, std::string *paddedString,
+                int paddingSize, int amountThings, int depth) {
+        LOG_VARS("depth: ", depth);
+        LOG_ADD_SECTION("getLevelValuesFake");
+        if (depth <= 0) {
+            for (int i = 0; i < amountThings; i++) {
+                *stream << *paddedString;
+            }
+            LOG_EXIT_SECTION();
+            return;
+        }
+        getLevelValuesFake(stream, paddedString, paddingSize, amountThings / 2, depth - 1);
+        getLevelValuesFake(stream, paddedString, paddingSize, amountThings / 2, depth - 1);
+        LOG_EXIT_SECTION();
+    }
   public:
     int value, height = 1, weight = 1;
     node *left = nullptr;
@@ -197,15 +214,15 @@ class node {
         node *returnNode = this;
         if (thisBalance < -1) {
             if (leftBalance == 1) {
-                returnNode = this->rotateLeftRight();
+                returnNode = rotateLeftRight();
             } else if (leftBalance == -1) {
-                returnNode = this->rotateRight();
+                returnNode = rotateRight();
             }
         } else if (thisBalance > 1) {
             if (rightBalance == -1) {
-                returnNode = this->rotateRightLeft();
+                returnNode = rotateRightLeft();
             } else if (rightBalance == 1) {
-                returnNode = this->rotateLeft();
+                returnNode = rotateLeft();
             }
         }
         LOG_VARS_SIMPLE("NODE ADDRESS: ", returnNode);
@@ -221,9 +238,9 @@ class node {
             return false;
         } else if (num < value) {
             LOG("Add to left");
-            if (this->addLeft(num)) {
+            if (addLeft(num)) {
                 LOG("need to UpdateHeight");
-                flag = this->updateHeight();
+                flag = updateHeight();
             }
             LOG("Rebalance left");
             left = left->rebalance();
@@ -232,9 +249,9 @@ class node {
             }
         } else if (num > value) {
             LOG("Add to Right");
-            if (this->addRight(num)) {
+            if (addRight(num)) {
                 LOG("need to UpdateHeight");
-                flag = this->updateHeight();
+                flag = updateHeight();
             }
             LOG("Rebalance Right");
             right = right->rebalance();
@@ -246,6 +263,49 @@ class node {
         updateWeight();
         LOG_EXIT_SECTION();
         return flag;
+    }
+    void getLevelValues(std::stringstream *stream, std::string *paddedString,
+                  int paddingSize, int amountThings, int depth) {
+        LOG_ADD_SECTION("getLevelValues");
+        LOG_VARS("height: ", height);
+        LOG_VARS("depth: ", depth);
+        LOG_VARS("paddingSectionAmount: ", amountThings);
+        if (depth <= 0) {
+            LOG("yes");
+            *stream << getValuePadded(paddingSize);
+            LOG("yes");
+            for (int i = 0; i < amountThings - 1; i++) {
+                *stream << *paddedString;
+            }
+            LOG("exiting");
+            LOG_EXIT_SECTION();
+            return;
+        }
+        if (left != nullptr) {
+            left->getLevelValues(stream, paddedString, paddingSize, amountThings / 2,
+                           depth - 1);
+        } else {
+            getLevelValuesFake(stream, paddedString, paddingSize, amountThings / 2,
+                   depth - 1);
+        }
+        if (right != nullptr) {
+            right->getLevelValues(stream, paddedString, paddingSize, amountThings / 2,
+                            depth - 1);
+        } else {
+            getLevelValuesFake(stream, paddedString, paddingSize, amountThings / 2,
+                   depth - 1);
+        }
+        LOG_EXIT_SECTION();
+    }
+    std::string getValuePadded(int paddingSize) {
+        LOG_ADD_SECTION("getValuePadded");
+        std::stringstream chunkOut;
+        chunkOut << std::to_string(value);
+        for (int i = std::to_string(value).size(); i < paddingSize; i++) {
+            chunkOut << " ";
+        }
+        LOG_EXIT_SECTION();
+        return chunkOut.str();
     }
 };
 
@@ -282,7 +342,39 @@ class TreeStart {
     bool contains(int num) { return true; }
     int size() {
         LOG_ADD_SECTION("TreeSize");
-        return root == nullptr ? 0 : root->size();
+        int temp = root == nullptr ? 0 : root->size();
         LOG_EXIT_SECTION();
+        return temp;
+    }
+    void drawTreeLOG() {
+        LOG_ADD_SECTION("printTree");
+        if (root == nullptr) {
+            LOG("no tree qwq");
+            return;
+        }
+        LOG_TOGGLE();
+        std::stringstream stream;
+        int sectionSize = std::log10(root->get(root->size() - 1)) + 1;
+        LOG_VARS("sectionSize: ", sectionSize);
+        int totalSectionAmount = std::pow(2, root->height-1);
+        LOG_VARS("height: ", root->height);
+        LOG_VARS("totalSectionAmount: ", totalSectionAmount);
+        std::string paddingString = generatePaddedString(sectionSize, '_');
+        for (int i = 0; i < root->height; i++) {
+            LOG_VARS("i/height: ", i);
+            root->getLevelValues(&stream, &paddingString, sectionSize,
+                           totalSectionAmount, i);
+            std::cout << stream.str() << "\n";
+            stream.str("");
+        }
+        LOG("finished");
+        LOG_EXIT_SECTION();
+    }
+    std::string generatePaddedString(int amount, char charecter) {
+        std::stringstream stream;
+        for (int i = 0; i < amount; i++) {
+            stream << charecter;
+        }
+        return stream.str();
     }
 };
