@@ -1,6 +1,7 @@
 #ifndef LOGGING_JONO
 #define LOGGING_JONO
 #include <iostream>
+#include <vector>
 #include <sstream>
 static void writeSourceLocation(std::string message, const char *fileName, int lineNumber, std::string *_location){
 #ifdef ENABLE_LOGGING

@@ -326,7 +326,7 @@ class TreeStart {
         }
         return stream.str();
     }
-    void printLayerValues(node **array, int amountOfItems, int swappingPoint) {
+    std::string printLayerValues(node **array, int amountOfItems, int swappingPoint) {
         std::stringstream stream;
         std::string paddingString = getPaddingString(gapCharecter);
         std::string paddingBlankString = getPaddingString(' ');
@@ -347,9 +347,10 @@ class TreeStart {
                 }
             }
         }
-        std::cout << stream.str() << "\n";
+        stream << "\n";
+        return stream.str();
     }
-    void printLayerHeights(node **array, int amountOfItems, int swappingPoint) {
+    std::string printLayerHeights(node **array, int amountOfItems, int swappingPoint) {
         std::stringstream stream;
         static std::string paddingString = (std::stringstream() << gapCharecter << gapCharecter).str();
         std::string paddingBlankString = "  ";
@@ -370,9 +371,10 @@ class TreeStart {
                 }
             }
         }
-        std::cout << stream.str() << "\n";
+        stream << "\n";
+        return stream.str();
     }
-    void printLayerBalances(node **array, int amountOfItems, int swappingPoint) {
+    std::string printLayerBalances(node **array, int amountOfItems, int swappingPoint) {
         std::stringstream stream;
         static std::string paddingString = (std::stringstream() << gapCharecter << gapCharecter).str();
         std::string paddingBlankString = "  ";
@@ -393,7 +395,8 @@ class TreeStart {
                 }
             }
         }
-        std::cout << stream.str() << "\n";
+        stream << "\n";
+        return stream.str();
     }
 
   public:
@@ -429,54 +432,60 @@ class TreeStart {
         LOG_EXIT_SECTION();
         return temp;
     }
-    void drawTreeValues() {
+    std::string drawTreeValues() {
         LOG_ADD_SECTION("drawTreeValues");
         if (root == nullptr) {
             LOG("no tree qwq");
-            return;
+            return "no tree";
         }
+        std::stringstream stream;
         int totalNodes = std::pow(2, root->height - 1);
         node *nodeArray[totalNodes];
         std::cout << "\n\nTree Values: \n";
         for (int depth = 0; depth < root->height; depth++) {
             LOG_VARS("depth: ", depth);
             getLayerNodes(&nodeArray[0], depth);
-            printLayerValues(&nodeArray[0], totalNodes, std::max(totalNodes/std::powf(2,depth + 1), float(1)));
+            stream << printLayerValues(&nodeArray[0], totalNodes, std::max(totalNodes/std::powf(2,depth + 1), float(1)));
         }
         LOG("finished");
         LOG_EXIT_SECTION();
+        return stream.str();
     }
-    void drawTreeHeights() {
+    std::string drawTreeHeights() {
         LOG_ADD_SECTION("drawTreeHeights");
         if (root == nullptr) {
             LOG("no tree qwq");
-            return;
+            return "no tree";
         }
+        std::stringstream stream;
         int totalNodes = std::pow(2, root->height - 1);
         node *nodeArray[totalNodes];
         std::cout << "\n\nTree Heights: \n";
         for (int depth = 0; depth < root->height; depth++) {
             LOG_VARS("depth: ", depth);
             getLayerNodes(&nodeArray[0], depth);
-            printLayerHeights(&nodeArray[0], totalNodes, std::max(totalNodes/std::powf(2,depth + 1), float(1)));
+            stream << printLayerHeights(&nodeArray[0], totalNodes, std::max(totalNodes/std::powf(2,depth + 1), float(1)));
         }
         LOG("finished");
         LOG_EXIT_SECTION();
+        return stream.str();
     }
-    void drawTreeBalances() {
+    std::string drawTreeBalances() {
         LOG_ADD_SECTION("drawTreeBalances");
         if (root == nullptr) {
             LOG("no tree qwq");
-            return;
+            return "no tree";
         }
+        std::stringstream stream;
         int totalNodes = std::pow(2, root->height - 1);
         node *nodeArray[totalNodes];
-        std::cout << "\n\nTree Balance: \n";
+        stream << "\n\nTree Balance: \n";
         for (int depth = 0; depth < root->height; depth++) {
             LOG_VARS("depth: ", depth);
             getLayerNodes(&nodeArray[0], depth);
-            printLayerBalances(&nodeArray[0], totalNodes, std::max(totalNodes/std::powf(2,depth + 1), float(1)));
+            stream << printLayerBalances(&nodeArray[0], totalNodes, std::max(totalNodes/std::powf(2,depth + 1), float(1)));
         }
+        return stream.str();
         LOG("finished");
         LOG_EXIT_SECTION();
     }
