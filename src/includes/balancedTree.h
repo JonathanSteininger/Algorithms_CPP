@@ -229,6 +229,7 @@ class node {
                 returnNode = rotateLeft();
             }
         }
+        updateHeight();
         LOG_VARS_SIMPLE("NODE ADDRESS: ", returnNode);
         LOG_EXIT_SECTION();
         return returnNode;
@@ -248,6 +249,7 @@ class node {
             }
             LOG("Rebalance left");
             left = left->rebalance();
+            updateHeight();
             if (flag) {
                 LOG("Need to tell parent to update height");
             }
@@ -259,6 +261,7 @@ class node {
             }
             LOG("Rebalance Right");
             right = right->rebalance();
+            updateHeight();
             if (flag) {
                 LOG("Need to tell parent to update height");
             }
@@ -337,8 +340,8 @@ class TreeStart {
                 }
             } else {
                 blankStringFlag = false;
-                stream << array[i]->getBalance();
-                for (int size = std::to_string(array[i]->getBalance()).size();
+                stream << array[i]->value;
+                for (int size = std::to_string(array[i]->value).size();
                      size < desiredLength; size++) {
                     stream << ' ';
                 }
