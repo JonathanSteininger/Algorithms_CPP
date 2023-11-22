@@ -52,7 +52,7 @@ bool testTreeSort() {
 bool testBalancedTree(){
     std::vector<int> nums;
     TreeStart head;
-    for(int i = 0; i < 200; i++){
+    for(int i = 0; i < 50; i++){
         nums.push_back(i);
     }
     auto rng = std::default_random_engine{};
@@ -73,10 +73,14 @@ bool testBalancedTree(){
             flag = headValue == nums[i];
         }
     }
+    head.drawTreeValues();
+    head.drawTreeHeights();
+    head.drawTreeBalances();
     return flag;
 }
 
 int main(int argc, char **argv) {
+    LOG_TOGGLE();
     testLog("Fibbonacci", testFibo());
     //testLog("TreeSort", testTreeSort());
     testLog("balancedTree", testBalancedTree());
